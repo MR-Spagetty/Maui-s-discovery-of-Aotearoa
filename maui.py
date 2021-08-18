@@ -79,7 +79,7 @@ class map:
         self.tiles[coordinates['y']][coordinates['x']] = self.tile(self,
                                                                    turn_num)
 
-    def print(self, current_seen, view_distance, x, y):
+    def print(self, current_seen, view_distance, x, y, turn_num, food):
         if view_distance == 2:
             r0 = current_seen[-2]
             r1 = current_seen[-1]
@@ -88,7 +88,7 @@ class map:
             r4 = current_seen[2]
             print(
                 f"""
-({x}, {y})
+({x}, {-y}) turn:{turn_num} food:{food}
 ╔═════════╦═════════╦═════════╦═════════╦═════════╗
 ║{r0[-2][0]}║{r0[-1][0]}║{r0[0][0]}║{r0[1][0]}║{r0[2][0]}║
 ║{r0[-2][1]}║{r0[-1][1]}║{r0[0][1]}║{r0[1][1]}║{r0[2][1]}║
@@ -127,7 +127,7 @@ class map:
             r2 = current_seen[1]
             print(
                 f"""
-({x}, {y})
+({x}x, {-y}y) turn:{turn_num} food:{food}
 ╔═════════╦═════════╦═════════╗
 ║{r0[-1][0]}║{r0[0][0]}║{r0[1][0]}║
 ║{r0[-1][1]}║{r0[0][1]}║{r0[1][1]}║
@@ -150,7 +150,7 @@ class map:
 """)
 
     class tile:
-        tile_types = ['sea', 'rock', 'island', 'whirlpool']
+        tile_types = ['sea', 'island', 'whirlpool', 'rock']
 
         tiles = {'island': [
                     '≈≈≈≈≈≈≈≈≈',
@@ -252,6 +252,9 @@ class map:
                 player.fish_collected += 1
                 self.has_fish = False
                 self.remaining_delay = self.fish_delay
+                return True
+            else:
+                return False
 
         def create_display(self):
             if self.type == "sea":
@@ -275,13 +278,15 @@ class player:
     # V = view distance
 
     def __init__(self, map_obj, control_scheme):
-        self.food_collected, self.view_distance = self.dificulty_starts[
+        self.playing = True
+        self.food, self.view_distance = self.dificulty_starts[
             map_obj.dificulty]
         self.map = map_obj
         self.control_scheme = control_scheme
         self.coordinates = {'x': 0, 'y': 0}
         self.last_seen_chart = {}
-        self.current_turn = 0
+        self.current_turn = 1
+        self.button_listener = keyboard.on_press(self.button_logic)
 
     def update_map_and_chart(self):
         current_seen = {}
@@ -318,10 +323,55 @@ class player:
                     current_seen[ry] = {}
                 current_seen[ry][rx] = self.map.tiles[y][x].create_display()
         self.map.print(current_seen, self.view_distance,
-                       *self.coordinates.values())
+                       *self.coordinates.values(), self.current_turn,
+                       self.food)
+
+    def button_logic(self, button):
+        moved = False
+        # getting the usefull information out of te button variable
+        button = str(button)[14:-6]
+        if button == self.control_scheme.up_control:
+            if self.map.tiles[
+                    self.coordinates['y'] - 1][
+                        self.coordinates['x']].type != 'rock':
+
+                self.coordinates['y'] -= 1
+                self.food -= 0.5
+                moved = True
+        elif button == self.control_scheme.down_control:
+            if self.map.tiles[
+                    self.coordinates['y'] + 1][
+                        self.coordinates['x']].type != 'rock':
+
+                self.coordinates['y'] += 1
+                self.food -= 0.5
+                moved = True
+        elif button == self.control_scheme.right_control:
+            if self.map.tiles[
+                    self.coordinates['y']][
+                        self.coordinates['x'] + 1].type != 'rock':
+
+                self.coordinates['x'] += 1
+                self.food -= 0.5
+                moved = True
+        elif button == self.control_scheme.left_control:
+            if self.map.tiles[
+                    self.coordinates['y']][
+                        self.coordinates['x'] - 1].type != 'rock':
+
+                self.coordinates['x'] -= 1
+                self.food -= 0.5
+                moved = True
+        if moved:
+            self.update_map_and_chart()
+            self.current_turn += 1
+        if button == 'q':
+            self.playing = False
 
 
 control_scheme = controls('w', 's', 'a', 'd', 'm', 'esc')
 test_map = map(random.getrandbits(200), 2)
 test_player = player(test_map, control_scheme)
 test_player.update_map_and_chart()
+while test_player.playing:
+    continue
