@@ -375,14 +375,16 @@ class player:
                        self.food)
 
     def help(self):
+        """displays help information
+        """
         print(f"""
 Button:   | Function:
-H         | opens this dialogue
+h         | opens this dialogue
 {self.control_scheme.up_control}         | Moves you upwards
 {self.control_scheme.down_control}         | Moves you downwards
 {self.control_scheme.left_control}         | Moves you left
 {self.control_scheme.right_control}         | Moves you right
-Q         | activates the quit prompt
+q         | activates the quit prompt
 
 Press any key to continue
 """)
@@ -537,7 +539,8 @@ class menu:
         # starting the game if the user did not choose to quit
         if not self.quiting:
             self.game_player.activate_button_listener()
-            self.game_player.update_map_and_chart()
+            self.game_player.in_help = True
+            self.game_player.help()
             while self.game_player.playing:
                 continue
 
