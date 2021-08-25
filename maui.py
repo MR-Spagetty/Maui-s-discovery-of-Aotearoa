@@ -3,12 +3,16 @@
 # MR-Spagetty
 
 import os
-import keyboard
 import random
+from sys import argv
+try:
+    import keyboard
+except ImportError:
+    print("Please install teh keyboard python module")
 
 
 class controls:
-    def __init__(self, up, down, left, right, map, menu):
+    def __init__(self, up, down, left, right):
         """Base control setup
 
         Args:
@@ -23,8 +27,6 @@ class controls:
         self.down_control = down
         self.left_control = left
         self.right_control = right
-        self.map_button = map
-        self.menu_button = menu
 
     def edit_up_control(self, up):
         """changes the button to be associated with moving upwards.
@@ -57,14 +59,6 @@ class controls:
             right (str): new button to be associated with moving right.
         """
         self.right_control = right
-
-    def edit_map_button(self, map):
-        """changes the button to be associated with the map.
-
-        Args:
-            map (str): new button to be associated with the map.
-        """
-        self.map_button = map
 
 
 class map:
@@ -253,8 +247,8 @@ class map:
             else:
                 self.generates_fish = bool(random.getrandbits(1))
                 if self.generates_fish:
-                    self.fish_delay = random.randint(2, 5)
-                    self.remaining_delay = self.fish_delay
+                    self.fish_delay = map_obj.random.randint(2, 5)
+                    self.remaining_delay = int(self.fish_delay)
             if not self.generates_fish:
                 self.fish_delay = 0
 
@@ -289,10 +283,7 @@ class map:
             if self.has_fish:
                 player.food += 1
                 self.has_fish = False
-                self.remaining_delay = self.fish_delay
-                return True
-            else:
-                return False
+                self.remaining_delay = int(self.fish_delay)
 
         def create_display(self):
             """creat the display for the tile display
@@ -321,6 +312,7 @@ class player:
     # V = view distance
 
     def __init__(self, map_obj, control_scheme):
+        self.in_menu = True
         self.playing = True
         self.quiting = False
         self.in_help = False
@@ -331,13 +323,16 @@ class player:
         self.coordinates = {'x': 0, 'y': 0}
         self.last_seen_chart = {}
         self.current_turn = 1
-        self.button_listener = None
-
-    def activate_button_listener(self):
         self.button_listener = keyboard.on_press(self.button_logic)
 
     def update_map_and_chart(self):
         current_seen = {}
+
+        if self.current_turn != 1:
+            self.map.tiles[
+                self.coordinates['y']][
+                    self.coordinates['x']].collect_fish(self)
+
         # iterating through the currently visable x coordinates
         for x in range(self.coordinates['x'] - self.view_distance,
                        self.coordinates['x'] + 1 + self.view_distance):
@@ -396,58 +391,60 @@ Press any key to continue
             button (str): the value of the button to process
         """
         moved = False
-        # getting the usefull information out of te button variable
-        button = str(button)[14:-6]
-        if self.in_help:
-            self.update_map_and_chart()
-        elif self.quiting:
-            if button == 'y':
-                self.playing = False
-            elif button == 'n':
-                self.quiting = False
+        if not self.in_menu:
+            # getting the usefull information out of the button variable
+            button = str(button)[14:-6]
+            if self.in_help:
+                self.in_help = False
                 self.update_map_and_chart()
-        else:
-            if button == self.control_scheme.up_control:
-                if self.map.tiles[
-                        self.coordinates['y'] - 1][
-                            self.coordinates['x']].type != 'rock':
+            elif self.quiting:
+                if button == 'y':
+                    self.playing = False
+                elif button == 'n':
+                    self.quiting = False
+                    self.update_map_and_chart()
+            else:
+                if button == self.control_scheme.up_control:
+                    if self.map.tiles[
+                            self.coordinates['y'] - 1][
+                                self.coordinates['x']].type != 'rock':
 
-                    self.coordinates['y'] -= 1
-                    self.food -= 0.5
-                    moved = True
-            elif button == self.control_scheme.down_control:
-                if self.map.tiles[
-                        self.coordinates['y'] + 1][
-                            self.coordinates['x']].type != 'rock':
+                        self.coordinates['y'] -= 1
+                        self.food -= 0.5
+                        moved = True
+                elif button == self.control_scheme.down_control:
+                    if self.map.tiles[
+                            self.coordinates['y'] + 1][
+                                self.coordinates['x']].type != 'rock':
 
-                    self.coordinates['y'] += 1
-                    self.food -= 0.5
-                    moved = True
-            elif button == self.control_scheme.right_control:
-                if self.map.tiles[
-                        self.coordinates['y']][
-                            self.coordinates['x'] + 1].type != 'rock':
+                        self.coordinates['y'] += 1
+                        self.food -= 0.5
+                        moved = True
+                elif button == self.control_scheme.right_control:
+                    if self.map.tiles[
+                            self.coordinates['y']][
+                                self.coordinates['x'] + 1].type != 'rock':
 
-                    self.coordinates['x'] += 1
-                    self.food -= 0.5
-                    moved = True
-            elif button == self.control_scheme.left_control:
-                if self.map.tiles[
-                        self.coordinates['y']][
-                            self.coordinates['x'] - 1].type != 'rock':
+                        self.coordinates['x'] += 1
+                        self.food -= 0.5
+                        moved = True
+                elif button == self.control_scheme.left_control:
+                    if self.map.tiles[
+                            self.coordinates['y']][
+                                self.coordinates['x'] - 1].type != 'rock':
 
-                    self.coordinates['x'] -= 1
-                    self.food -= 0.5
-                    moved = True
-            if moved:
-                self.update_map_and_chart()
-                self.current_turn += 1
-            if button == 'q':
-                print('Are you sure (Y|N)')
-                self.quiting = True
-            if button == 'h':
-                self.in_help = True
-                self.help()
+                        self.coordinates['x'] -= 1
+                        self.food -= 0.5
+                        moved = True
+                if moved:
+                    self.update_map_and_chart()
+                    self.current_turn += 1
+                if button == 'q':
+                    print('Are you sure (Y|N)')
+                    self.quiting = True
+                if button == 'h':
+                    self.in_help = True
+                    self.help()
 
 
 class menu:
@@ -502,8 +499,20 @@ class menu:
         """initalizes the game and starts the menu
         """
         # basic game setup
-        control_scheme = controls('w', 's', 'a', 'd', 'm', 'esc')
-        game_map = map(random.getrandbits(200), 2)
+        if len(argv) >= 6:
+            control_scheme = controls(*argv[1:5])
+            try:
+                dificulty = int(argv[5])
+            except ValueError:
+                dificulty = 1
+            seed = random.getrandbits(200)
+            if len(argv) >= 7:
+                seed = argv[6]
+        else:
+            control_scheme = controls('w', 's', 'a', 'd')
+            seed = random.getrandbits(200)
+            dificulty = 1
+        game_map = map(seed, dificulty)
 
         # basic variables used in the menu
         self.selected = 'start'
@@ -538,7 +547,7 @@ class menu:
 
         # starting the game if the user did not choose to quit
         if not self.quiting:
-            self.game_player.activate_button_listener()
+            self.game_player.in_menu = False
             self.game_player.in_help = True
             self.game_player.help()
             while self.game_player.playing:
