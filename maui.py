@@ -8,7 +8,7 @@ from sys import argv
 try:
     import keyboard
 except ImportError:
-    print("Please install teh keyboard python module")
+    print("Please install the keyboard python module")
 
 
 class controls:
@@ -66,8 +66,8 @@ class map:
         """initalizing the map.
 
         Args:
-            seed (any): the seed for teh world
-            dificulty (int): 1, 2, or 3  defines teh dificulty that will be
+            seed (any): the seed for the world
+            dificulty (int): 1, 2, or 3  defines the dificulty that will be
             used in the map
         """
         self.random = random
@@ -88,14 +88,15 @@ class map:
         self.tiles[coordinates['y']][coordinates['x']] = self.tile(self,
                                                                    turn_num)
 
-    def print(self, current_seen, view_distance, x, y, turn_num, food):
+    def print(self, current_seen, view_distance, x, y, turn_num, food,
+              message):
         """prints the currently visable tile of the map with the player's
         current coordinates and food
 
         Args:
             current_seen (dict{lists}): the tiles that can currently be seen
             by the player
-            view_distance (int): teh view distance of the player
+            view_distance (int): the view distance of the player
             x (int): the current x coordinate of the player
             y (int): the current y coordinate of the player
             turn_num (int): the current turn number
@@ -142,7 +143,7 @@ class map:
 ║{r4[-2][3]}║{r4[-1][3]}║{r4[0][3]}║{r4[1][3]}║{r4[2][3]}║
 ║{r4[-2][4]}║{r4[-1][4]}║{r4[0][4]}║{r4[1][4]}║{r4[2][4]}║
 ╚═════════╩═════════╩═════════╩═════════╩═════════╝
-
+{message}
                     Center Tile
                     ╔═════════╗
                     ║{r2[0][0]}║
@@ -178,7 +179,7 @@ class map:
 ║{r2[-1][3]}║{r2[0][3]}║{r2[1][3]}║
 ║{r2[-1][4]}║{r2[0][4]}║{r2[1][4]}║
 ╚═════════╩═════════╩═════════╝
-
+{message}
           Center Tile
           ╔═════════╗
           ║{r1[0][0]}║
@@ -252,6 +253,7 @@ class map:
             """
             self.turn_created = turn_number
 
+            self.parent = map_obj
             # determing what kind of tile will be generated
             if generated:
                 self.type = map_obj.random.choice(self.tile_types)
@@ -271,6 +273,9 @@ class map:
                 self.fish_delay = 0
 
             self.has_fish = False
+            if self.type == 'whirlpool':
+                self.cooldown = 2
+                self.cooldown_at = 0
 
         def check_if_fish(self, last_seen, current_turn):
             """logic to check if a tile has generated a fish
@@ -294,20 +299,54 @@ class map:
 
             Args:
                 player (player object): the player object
-
-            Returns:
-                bool: whether or not the player has collected a fish.
             """
             if self.has_fish:
                 player.food += 1
                 self.has_fish = False
                 self.remaining_delay = int(self.fish_delay)
 
+        # things that can happen in a whirl pool
+
+        def teleport_random(self, player):
+            """Logic for teleporting the player to a random location
+
+            Args:
+                player (player object): the player object
+            """
+            x_offset = random.choice([-1, 1]) * random.getrandbits(8)
+            y_offset = random.choice([-1, 1]) * random.getrandbits(8)
+            player.coordinates['x'] += x_offset
+            player.coordinates['y'] += y_offset
+
+        def lose_fish(self, player):
+            amount_to_lose = random.uniform(1, player.food)
+            player.food -= amount_to_lose
+            player.current_message = f'You lost {amount_to_lose} food'
+
+        def die(self, player):
+            player.food = 0
+
+        def whirlpool_execute(self, player):
+            if self.type == 'whirlpool':
+                x = player.coordinates['x']
+                y = player.coordinates['y']
+                turns_since_seen = (player.current_turn -
+                                    player.last_seen[y][x])
+                if self.cooldown_at - turns_since_seen <= 0:
+                    possible_actions = [
+                        self.teleport_random, self.lose_fish,
+                        self.die
+                    ]
+                    random.choice(possible_actions)(player)
+                    self.cooldown_at = self.cooldown
+                else:
+                    self.cooldown_at -= turns_since_seen
+
         def create_display(self):
             """creat the display for the tile display
 
             Returns:
-                list: the display for teh tile
+                list: the display for the tile
             """
             if self.type == "sea":
                 if self.has_fish:
@@ -342,20 +381,27 @@ class player:
         self.last_seen_chart = {}
         self.current_turn = 1
         self.button_listener = keyboard.on_press(self.button_logic)
+        self.current_message = ''
 
     def hit_a_rock(self):
-        print('You have hit a rock you cannot pass this')
+        self.current_message = 'You have hit a rock you cannot pass this'
         if self.map.dificulty == 3:
-            print('as punnnnnnishment you have lost 2 fish')
+            self.current_message = f'{self.current_message}\nas '\
+                'punnnnnnishment you have lost 2 fish'
             self.food -= 2
+        self.update_map_and_chart(True)
 
-    def update_map_and_chart(self):
+    def update_map_and_chart(self, hit_rock=False):
         current_seen = {}
 
-        if self.current_turn != 1:
-            self.map.tiles[
-                self.coordinates['y']][
-                    self.coordinates['x']].collect_fish(self)
+        if self.coordinates['y'] in self.map.tiles and not hit_rock:
+            if self.coordinates['x'] in self.map.tiles['y']:
+                self.map.tiles[
+                    self.coordinates['y']][
+                        self.coordinates['x']].collect_fish(self)
+                self.map.tiles[
+                    self.coordinates['y']][
+                        self.coordinates['x']].whirlpool_execute(self)
 
         # iterating through the currently visable x coordinates
         for x in range(self.coordinates['x'] - self.view_distance,
@@ -391,7 +437,8 @@ class player:
                 current_seen[ry][rx] = self.map.tiles[y][x].create_display()
         self.map.print(current_seen, self.view_distance,
                        *self.coordinates.values(), self.current_turn,
-                       self.food)
+                       self.food, self.current_message)
+        self.current_message = ''
 
     def help(self):
         """displays help information
@@ -463,6 +510,8 @@ Press any key to continue
                 if moved:
                     self.update_map_and_chart()
                     self.current_turn += 1
+                elif not moved:
+                    self.hit_a_rock()
                 if button == 'q':
                     print('Are you sure (Y|N)')
                     self.quiting = True
