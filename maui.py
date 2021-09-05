@@ -331,7 +331,7 @@ class map:
                 x = player.coordinates['x']
                 y = player.coordinates['y']
                 turns_since_seen = (player.current_turn -
-                                    player.last_seen[y][x])
+                                    player.last_seen_chart[y][x])
                 if self.cooldown_at - turns_since_seen <= 0:
                     possible_actions = [
                         self.teleport_random, self.lose_fish,
@@ -395,7 +395,7 @@ class player:
         current_seen = {}
 
         if self.coordinates['y'] in self.map.tiles and not hit_rock:
-            if self.coordinates['x'] in self.map.tiles['y']:
+            if self.coordinates['x'] in self.map.tiles[self.coordinates['y']]:
                 self.map.tiles[
                     self.coordinates['y']][
                         self.coordinates['x']].collect_fish(self)
