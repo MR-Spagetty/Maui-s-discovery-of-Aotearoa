@@ -20,8 +20,6 @@ class controls:
             down (str): button to be associated with moving downwards.
             left (str): button to be associated with moving left.
             right (str): button to be associated with moving right.
-            map (str): button to be associated with opening/closing the map.
-            menu (str): button to be associated with opening/closing the menu.
         """
         self.up_control = up
         self.down_control = down
@@ -239,7 +237,7 @@ class map:
             """setup for a map tile
 
             Args:
-                map_obj (map_object): the parent map to be associated with
+                map_obj (map_type_object): the parent map to be associated with
                 this tile.
 
                 turn_number (int): the current turn number to be used to
@@ -298,7 +296,8 @@ class map:
             """logic for collection a fish
 
             Args:
-                player (player object): the player object
+                player (player_type_object): the player that will be affected
+                by the whirlpool
             """
             if self.has_fish:
                 player.food += 1
@@ -311,7 +310,8 @@ class map:
             """Logic for teleporting the player to a random location
 
             Args:
-                player (player object): the player object
+                player (player_type_object): the player that will be affected
+                by the whirlpool
             """
             x_offset = random.choice([-1, 1]) * random.getrandbits(8)
             y_offset = random.choice([-1, 1]) * random.getrandbits(8)
@@ -321,16 +321,35 @@ class map:
             player.coordinates['y'] += y_offset
 
         def lose_fish(self, player):
+            """function that causes the player to lose between 1 food and
+            however much the player currently has
+
+            Args:
+                player (player_type_object): the player that will be affected
+                by the whirlpool
+            """
             amount_to_lose = random.uniform(1, player.food)
             player.food -= amount_to_lose
             player.current_message = f'You lost {amount_to_lose} food'
 
         def die(self, player):
+            """function to kill the player
+
+            Args:
+                player (player_type_object): the player that will be affected
+                by the whirlpool
+            """
             player.food = 0
             player.current_message = "you got sucked down to Davey Jones' "\
                 "locker"
 
         def whirlpool_execute(self, player):
+            """function for executing a whirlpool function
+
+            Args:
+                player (player_type_object): the player that will be affected
+                by the whirlpool
+            """
             if self.type == 'whirlpool':
                 x = player.coordinates['x']
                 y = player.coordinates['y']
@@ -373,6 +392,14 @@ class player:
     # V = view distance
 
     def __init__(self, map_obj, control_scheme):
+        """generating the player object
+
+        Args:
+            map_obj (map_type_object): the map object that this player object
+            will use
+            control_scheme (controls_type_object): the controls that this
+            player will use
+        """
         self.in_menu = True
         self.playing = True
         self.quiting = False
@@ -388,6 +415,8 @@ class player:
         self.current_message = ''
 
     def hit_a_rock(self):
+        """logic for when you hit a rock
+        """
         self.current_message = 'You have hit a rock you cannot pass this'
         if self.map.dificulty == 3:
             self.current_message = f'{self.current_message}\nas '\
@@ -396,6 +425,12 @@ class player:
         self.update_map_and_chart(True)
 
     def update_map_and_chart(self, hit_rock=False):
+        """function for updating the displayed map
+
+        Args:
+            hit_rock (bool, optional): wheather or not the functions was
+            called by hitting a rock. Defaults to False.
+        """
         current_seen = {}
 
         if self.coordinates['y'] in self.map.tiles and not hit_rock:
@@ -466,7 +501,7 @@ Sea:
 {sea_tile}
 
     The sea tile has a 50/50 chance of generating fish and
-    if the tile generates fish teh delay between a fish
+    if the tile generates fish the delay between a fish
     generating will be between 2 and 5 turns (inclusive).
 
 Island:
@@ -646,6 +681,12 @@ class menu:
         # creating the key handler for use in the menu
 
         def key_handler(key, menu):
+            """key handler for the menu
+
+            Args:
+                key (str): the key that was pressed
+                menu (menu_type_object): the menu object
+            """
             if menu.in_menu:
                 if key == 'enter':
                     menu.execute_selection()
