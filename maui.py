@@ -315,6 +315,8 @@ class map:
             """
             x_offset = random.choice([-1, 1]) * random.getrandbits(8)
             y_offset = random.choice([-1, 1]) * random.getrandbits(8)
+            player.current_message = "you got teleported "\
+                f"by {x_offset}x and {y_offset}y"
             player.coordinates['x'] += x_offset
             player.coordinates['y'] += y_offset
 
@@ -325,6 +327,8 @@ class map:
 
         def die(self, player):
             player.food = 0
+            player.current_message = "you got sucked down to Davey Jones' "\
+                "locker"
 
         def whirlpool_execute(self, player):
             if self.type == 'whirlpool':
@@ -443,6 +447,10 @@ class player:
     def help(self):
         """displays help information
         """
+        sea_tile = "\n".join(map.tile.tiles['sea'])
+        island_tile = "\n".join(map.tile.tiles['island'])
+        rock_tile = "\n".join(map.tile.tiles['rock'])
+        whirlpool_tile = "\n".join(map.tile.tiles['whirlpool'])
         print(f"""
 Button:   | Function:
 h         | opens this dialogue
@@ -452,7 +460,38 @@ h         | opens this dialogue
 {self.control_scheme.right_control}         | Moves you right
 q         | activates the quit prompt
 
-Press any key to continue
+Tile type and function key:
+
+Sea:
+{sea_tile}
+
+    The sea tile has a 50/50 chance of generating fish and
+    if the tile generates fish teh delay between a fish
+    generating will be between 2 and 5 turns (inclusive).
+
+Island:
+{island_tile}
+
+    The island tile is basicly just a sea tile that cannot
+    gerate fish.
+
+Rock:
+{rock_tile}
+
+    The rock tile is a barrier that cannot be passed and in
+    the hardest difficulty if you hit one you lose 3 food.
+    your difficuty is {"not hard mode" if self.map.dificulty < 3 else
+    "hard mode"}
+Whirlpool:
+{whirlpool_tile}
+
+    The whirlpool tile is a tile that can do mny things
+    these things include:
+    - Random telportation (within 255 tiles in both directions)
+    - Losing a random amount of food between 1 and how much you have
+    - Killing the player (by removing all of your fish)
+
+Press a key to continue
 """)
 
     def button_logic(self, button):
@@ -465,6 +504,7 @@ Press any key to continue
         if not self.in_menu:
             # getting the usefull information out of the button variable
             button = str(button)[14:-6]
+            hit_a_rock = False
             if self.in_help:
                 self.in_help = False
                 self.update_map_and_chart()
@@ -483,6 +523,8 @@ Press any key to continue
                         self.coordinates['y'] -= 1
                         self.food -= 0.5
                         moved = True
+                    else:
+                        hit_a_rock = True
                 elif button == self.control_scheme.down_control:
                     if self.map.tiles[
                             self.coordinates['y'] + 1][
@@ -491,6 +533,8 @@ Press any key to continue
                         self.coordinates['y'] += 1
                         self.food -= 0.5
                         moved = True
+                    else:
+                        hit_a_rock = True
                 elif button == self.control_scheme.right_control:
                     if self.map.tiles[
                             self.coordinates['y']][
@@ -499,6 +543,8 @@ Press any key to continue
                         self.coordinates['x'] += 1
                         self.food -= 0.5
                         moved = True
+                    else:
+                        hit_a_rock = True
                 elif button == self.control_scheme.left_control:
                     if self.map.tiles[
                             self.coordinates['y']][
@@ -507,10 +553,12 @@ Press any key to continue
                         self.coordinates['x'] -= 1
                         self.food -= 0.5
                         moved = True
+                    else:
+                        hit_a_rock = True
                 if moved:
                     self.update_map_and_chart()
                     self.current_turn += 1
-                elif not moved:
+                elif hit_a_rock:
                     self.hit_a_rock()
                 if button == 'q':
                     print('Are you sure (Y|N)')
