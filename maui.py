@@ -108,8 +108,7 @@ class map:
             r3 = current_seen[1]
             r4 = current_seen[2]
             print(
-                f"""
-({x}x, {-y}y) turn:{turn_num} food:{food}
+                f"""({x}x, {-y}y) turn:{turn_num} food:{food}
 ╔═════════╦═════════╦═════════╦═════════╦═════════╗
 ║{r0[-2][0]}║{r0[-1][0]}║{r0[0][0]}║{r0[1][0]}║{r0[2][0]}║
 ║{r0[-2][1]}║{r0[-1][1]}║{r0[0][1]}║{r0[1][1]}║{r0[2][1]}║
@@ -149,15 +148,13 @@ class map:
                     ║{r2[0][2]}║
                     ║{r2[0][3]}║
                     ║{r2[0][4]}║
-                    ╚═════════╝
-""")
+                    ╚═════════╝""")
         if view_distance == 1:
             r0 = current_seen[-1]
             r1 = current_seen[0]
             r2 = current_seen[1]
             print(
-                f"""
-({x}x, {-y}y) turn:{turn_num} food:{food}
+                f"""({x}x, {-y}y) turn:{turn_num} food:{food}
 ╔═════════╦═════════╦═════════╗
 ║{r0[-1][0]}║{r0[0][0]}║{r0[1][0]}║
 ║{r0[-1][1]}║{r0[0][1]}║{r0[1][1]}║
@@ -185,8 +182,7 @@ class map:
           ║{r1[0][2]}║
           ║{r1[0][3]}║
           ║{r1[0][4]}║
-          ╚═════════╝
-""")
+          ╚═════════╝""")
 
     class tile:
         # probabilities of each tile type is determened by frequency in this
