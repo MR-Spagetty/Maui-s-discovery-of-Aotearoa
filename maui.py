@@ -482,7 +482,9 @@ class player:
     def help(self):
         """displays help information
         """
-        sea_tile = "\n".join(map.tile.tiles['sea'])
+        sea_tile = map.tile.tiles['sea']
+        sea_tile_fish = "\n".join(sea_tile['fish'])
+        sea_tile_no_fish = "\n".join(sea_tile['no fish'])
         island_tile = "\n".join(map.tile.tiles['island'])
         rock_tile = "\n".join(map.tile.tiles['rock'])
         whirlpool_tile = "\n".join(map.tile.tiles['whirlpool'])
@@ -498,7 +500,10 @@ q         | activates the quit prompt
 Tile type and function key:
 
 Sea:
-{sea_tile}
+tile without fish:
+{sea_tile_no_fish}
+tile with fish:
+{sea_tile_fish}
 
     The sea tile has a 50/50 chance of generating fish and
     if the tile generates fish the delay between a fish
@@ -507,7 +512,7 @@ Sea:
 Island:
 {island_tile}
 
-    The island tile is basicly just a sea tile that cannot
+    The island tile is basically just a sea tile that cannot
     gerate fish.
 
 Rock:
