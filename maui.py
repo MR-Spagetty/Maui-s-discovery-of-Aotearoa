@@ -328,7 +328,7 @@ class map:
                 player (player_type_object): the player that will be affected
                 by the whirlpool
             """
-            amount_to_lose = random.uniform(1, player.food)
+            amount_to_lose = random.randint(2, (player.food*2)) / 2
             player.food -= amount_to_lose
             player.current_message = f'You lost {amount_to_lose} food'
 
