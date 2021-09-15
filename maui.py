@@ -693,7 +693,7 @@ class menu:
         self.left = ''
         self.right = ''
         self.difficulty = 0
-        self.taken_keys = ['q', 'h']
+        self.taken_keys = ['q', 'h', '1', '2', '3']
 
         def control_setup(key, menu):
             """setup handler
