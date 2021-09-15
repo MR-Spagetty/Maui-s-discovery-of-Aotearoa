@@ -60,17 +60,17 @@ class controls:
 
 
 class map:
-    def __init__(self, seed, dificulty):
+    def __init__(self, seed, difficulty):
         """initalizing the map.
 
         Args:
             seed (any): the seed for the world
-            dificulty (int): 1, 2, or 3  defines the dificulty that will be
+            difficulty (int): 1, 2, or 3  defines the difficulty that will be
             used in the map
         """
         self.random = random
         self.random.seed(seed)
-        self.dificulty = dificulty
+        self.difficulty = difficulty
         self.tiles = {}
 
     def generate_tile(self, turn_num, coordinates={'x': 0, 'y': 0}):
@@ -378,7 +378,7 @@ class map:
 
 
 class player:
-    dificulty_starts = {
+    difficulty_starts = {
         #   F  V
         1: (5, 2),
         2: (5, 1),
@@ -400,8 +400,8 @@ class player:
         self.playing = True
         self.quiting = False
         self.in_help = False
-        self.food, self.view_distance = self.dificulty_starts[
-            map_obj.dificulty]
+        self.food, self.view_distance = self.difficulty_starts[
+            map_obj.difficulty]
         self.map = map_obj
         self.control_scheme = control_scheme
         self.coordinates = {'x': 0, 'y': 0}
@@ -414,7 +414,7 @@ class player:
         """logic for when you hit a rock
         """
         self.current_message = 'You have hit a rock you cannot pass this'
-        if self.map.dificulty == 3:
+        if self.map.difficulty == 3:
             self.current_message = f'{self.current_message}\nas '\
                 'punnnnnnishment you have lost 2 fish'
             self.food -= 2
@@ -484,13 +484,17 @@ class player:
         island_tile = "\n".join(map.tile.tiles['island'])
         rock_tile = "\n".join(map.tile.tiles['rock'])
         whirlpool_tile = "\n".join(map.tile.tiles['whirlpool'])
+        up = self.control_scheme.up_control
+        down = self.control_scheme.down_control
+        left = self.control_scheme.left_control
+        right = self.control_scheme.right_control
         print(f"""
 Button:   | Function:
 h         | opens this dialogue
-{self.control_scheme.up_control}         | Moves you upwards
-{self.control_scheme.down_control}         | Moves you downwards
-{self.control_scheme.left_control}         | Moves you left
-{self.control_scheme.right_control}         | Moves you right
+{"".join([up, (10-len(up))*" "])}| Moves you upwards
+{"".join([down, (10-len(down))*" "])}| Moves you downwards
+{"".join([left, (10-len(left))*" "])}| Moves you left
+{"".join([right, (10-len(right))*" "])}| Moves you right
 q         | activates the quit prompt
 
 Tile type and function key:
@@ -516,7 +520,7 @@ Rock:
 
     The rock tile is a barrier that cannot be passed and in
     the hardest difficulty if you hit one you lose 3 food.
-    your difficuty is {"not hard mode" if self.map.dificulty < 3 else
+    your difficuty is {"not hard mode" if self.map.difficulty < 3 else
     "hard mode"}
 Whirlpool:
 {whirlpool_tile}
@@ -655,21 +659,67 @@ class menu:
     def __init__(self):
         """initalizes the game and starts the menu
         """
+        self.key_setup = True
+
+        self.up = ''
+        self.down = ''
+        self.left = ''
+        self.right = ''
+        self.difficulty = 0
+
+        def control_setup(key, menu):
+            difficulties = ['1', '2', '3']
+            if menu.key != 'difficulty':
+                direction = menu.key
+            else:
+                direction = False
+            if menu.key == 'up':
+                menu.up = key
+                menu.key = 'down'
+            elif menu.key == 'down':
+                menu.down = key
+                menu.key = 'left'
+            elif menu.key == 'left':
+                menu.left = key
+                menu.key = 'right'
+            elif menu.key == 'right':
+                menu.right = key
+                menu.key = 'difficulty'
+            elif menu.key == 'difficulty':
+                if str.isnumeric(key):
+                    menu.difficulty = int(key)
+            if direction:
+                print(
+                    f"the {direction} movement button has been set to {key}"
+                )
+            if menu.key != 'difficulty':
+                print(
+                    'press the button you would like to use to move '
+                    f'{menu.key}'
+                )
+            elif not menu.difficulty:
+                print('press 1, 2, or 3 to select difficulty 1 is the\n'
+                      'easiest and 3 is the hardest')
+            elif menu.difficulty:
+                print(f"the difficulty was set to {menu.difficulty}")
+                menu.key_setup = False
+
+        self.key = 'up'
+        print(f'press the button you would like to use to move {self.key}')
+        control_setup_handler = keyboard.on_press(
+            lambda key, : control_setup(str(key)[14:-6], self))
+        while self.key_setup:
+            continue
+        control_setup_handler()
+        control_scheme = controls(self.up, self.down, self.left, self.right)
+
         # basic game setup
-        if len(argv) >= 6:
-            control_scheme = controls(*argv[1:5])
-            try:
-                dificulty = int(argv[5])
-            except ValueError:
-                dificulty = 1
-            seed = random.getrandbits(200)
-            if len(argv) >= 7:
-                seed = argv[6]
-        else:
-            control_scheme = controls('w', 's', 'a', 'd')
-            seed = random.getrandbits(200)
-            dificulty = 1
-        game_map = map(seed, dificulty)
+        seed = random.getrandbits(200)
+        if len(argv) >= 2:
+            seed = argv[1]
+
+        # self.difficulty = 1
+        game_map = map(seed, self.difficulty)
 
         # basic variables used in the menu
         self.selected = 'start'
