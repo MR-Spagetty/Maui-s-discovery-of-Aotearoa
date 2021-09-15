@@ -666,32 +666,36 @@ class menu:
         self.left = ''
         self.right = ''
         self.difficulty = 0
+        self.taken_keys = ['q', 'h']
 
         def control_setup(key, menu):
             difficulties = ['1', '2', '3']
-            if menu.key != 'difficulty':
-                direction = menu.key
+            if key in menu.taken_keys:
+                print(f"the {key} key is already taken")
             else:
-                direction = False
-            if menu.key == 'up':
-                menu.up = key
-                menu.key = 'down'
-            elif menu.key == 'down':
-                menu.down = key
-                menu.key = 'left'
-            elif menu.key == 'left':
-                menu.left = key
-                menu.key = 'right'
-            elif menu.key == 'right':
-                menu.right = key
-                menu.key = 'difficulty'
-            elif menu.key == 'difficulty':
-                if str.isnumeric(key):
-                    menu.difficulty = int(key)
-            if direction:
-                print(
-                    f"the {direction} movement button has been set to {key}"
-                )
+                if menu.key != 'difficulty':
+                    direction = menu.key
+                else:
+                    direction = False
+                if menu.key == 'up':
+                    menu.up = key
+                    menu.key = 'down'
+                elif menu.key == 'down':
+                    menu.down = key
+                    menu.key = 'left'
+                elif menu.key == 'left':
+                    menu.left = key
+                    menu.key = 'right'
+                elif menu.key == 'right':
+                    menu.right = key
+                    menu.key = 'difficulty'
+                elif menu.key == 'difficulty':
+                    if str.isnumeric(key) and key in difficulties:
+                        menu.difficulty = int(key)
+                if direction:
+                    print(f"the {direction} movement button has "
+                          f"been set to {key}")
+                    menu.taken_keys.append(key)
             if menu.key != 'difficulty':
                 print(
                     'press the button you would like to use to move '
