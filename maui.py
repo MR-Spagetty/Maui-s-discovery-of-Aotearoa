@@ -693,7 +693,7 @@ class menu:
         self.left = ''
         self.right = ''
         self.difficulty = 0
-        self.taken_keys = ['q', 'h', '1', '2', '3']
+        self.taken_keys = ['q', 'h']
 
         def control_setup(key, menu):
             """setup handler
@@ -722,13 +722,13 @@ class menu:
                 elif menu.key == 'right':
                     menu.right = key
                     menu.key = 'difficulty'
-                elif menu.key == 'difficulty':
-                    if str.isnumeric(key) and key in difficulties:
-                        menu.difficulty = int(key)
                 if direction:
                     print(f"the {direction} movement button has "
                           f"been set to {key}")
                     menu.taken_keys.append(key)
+            if menu.key == 'difficulty':
+                if str.isnumeric(key) and key in difficulties:
+                    menu.difficulty = int(key)
             if menu.key != 'difficulty':
                 print(
                     'press the button you would like to use to move '
