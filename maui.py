@@ -86,6 +86,16 @@ class map:
         self.tiles[coordinates['y']][coordinates['x']] = self.tile(self,
                                                                    turn_num)
 
+    def generate_north_island(self):
+        x = self.random.randint(2**9, 2**11)
+        y = self.random.randint(2**9, 2**11)
+        x *= self.random.choice([-1, 1])
+        y *= self.random.choice([-1, 1])
+
+        if y not in self.tiles.keys():
+            self.tiles[y] = {}
+        self.tiles[y][x] = self.tile(self, -1, False, 'north island')
+
     def print(self, current_seen, view_distance, x, y, turn_num, food,
               message):
         """prints the currently visable tile of the map with the player's
@@ -225,6 +235,13 @@ class map:
                 '≈|≈\\@\\≈|≈',
                 '≈≈\\_/≈|≈≈',
                 '≈≈≈≈≈≈/≈≈'
+            ],
+            'north island': [
+                '≈≈≈%≈≈≈≈≈',
+                '≈≈≈≈%≈%≈≈',
+                '≈≈≈%%%≈≈≈',
+                '≈≈%%%≈≈≈≈',
+                '≈≈≈≈≈≈≈≈≈'
             ]
             }
 
@@ -299,6 +316,10 @@ class map:
                 player.food += 1
                 self.has_fish = False
                 self.remaining_delay = int(self.fish_delay)
+
+        def check_win(self, player):
+            if self.type == "north island":
+                player.won = True
 
         # things that can happen in a whirl pool
 
@@ -396,6 +417,7 @@ class player:
             control_scheme (controls_type_object): the controls that this
             player will use
         """
+        self.won = False
         self.in_menu = True
         self.playing = True
         self.quiting = False
@@ -659,8 +681,8 @@ class menu:
     def __init__(self):
         """initalizes the game and starts the menu
         """
+        # key and difficulty setup
         self.key_setup = True
-
         self.up = ''
         self.down = ''
         self.left = ''
@@ -669,6 +691,12 @@ class menu:
         self.taken_keys = ['q', 'h']
 
         def control_setup(key, menu):
+            """setup handler
+
+            Args:
+                key (str): the key that was pressed
+                menu (menu_type_object): the menu object
+            """
             difficulties = ['1', '2', '3']
             if key in menu.taken_keys:
                 print(f"the {key} key is already taken")
@@ -785,6 +813,34 @@ class menu:
                       "\\    \\:\\/.:| |/__\\::\\__/\\\\:\\____/\\\\:\\/.:| |"
                       "\n     \\__\\/   \\_____\\/ \\_____\\/     \\____/_/\\"
                       "________\\/ \\_____\\/ \\____/_/")
+            elif self.game_player.won:
+                # belive it or not this says "YOU FOUND AOTEAROA"
+                print(" __  __   ______   __  __       ______   ______   __ "
+                      " __   ___   __    ______\n/_/\\/_/\\ /_____/\\ /_/\\/_/"
+                      "\\     /_____/\\ /_____/\\ /_/\\/_/\\ /__/\\ /__/\\ /__"
+                      "___/\\\n\\ \\ \\ \\ \\\\:::_ \\ \\\\:\\ \\:\\ \\    \\:"
+                      ":::_\\/_\\:::_ \\ \\\\:\\ \\:\\ \\\\::\\_\\\\  \\ \\\\:"
+                      "::_ \\ \\\n \\:\\_\\ \\ \\\\:\\ \\ \\ \\\\:\\ \\:\\ \\ "
+                      "   \\:\\/___/\\\\:\\ \\ \\ \\\\:\\ \\:\\ \\\\:. `-\\  "
+                      "\\ \\\\:\\ \\ \\ \\\n  \\::::_\\/ \\:\\ \\ \\ \\\\:\\ "
+                      "\\:\\ \\    \\:::._\\/ \\:\\ \\ \\ \\\\:\\ \\:\\ \\\\:."
+                      " _    \\ \\\\:\\ \\ \\ \\\n    \\::\\ \\  \\:\\_\\ \\ "
+                      "\\\\:\\_\\:\\ \\    \\:\\ \\    \\:\\_\\ \\ \\\\:\\_\\:"
+                      "\\ \\\\. \\`-\\  \\ \\\\:\\/.:| |\n ____\\__\\/  _\\___"
+                      "__\\/_\\_____\\/  ___\\_\\/  ___\\_____\\/_\\_____\\/ "
+                      "\\__\\/_\\__\\/_\\____/_/\n/_______/\\ /_____/\\ /____"
+                      "____/\\/_____/\\ /_______/\\ /_____/\\  /_____/\\ /___"
+                      "____/\\\n\\::: _  \\ \\\\:::_ \\ \\\\__.::.__\\/\\::::"
+                      "_\\/_\\::: _  \\ \\\\:::_ \\ \\ \\:::_ \\ \\\\::: _  \\"
+                      " \\\n \\::(_)  \\ \\\\:\\ \\ \\ \\  \\::\\ \\   \\:\\/_"
+                      "__/\\\\::(_)  \\ \\\\:(_) ) )_\\:\\ \\ \\ \\\\::(_)  \\"
+                      " \\\n  \\:: __  \\ \\\\:\\ \\ \\ \\  \\::\\ \\   \\::__"
+                      "_\\/_\\:: __  \\ \\\\: __ `\\ \\\\:\\ \\ \\ \\\\:: __  "
+                      "\\ \\\n   \\:.\\ \\  \\ \\\\:\\_\\ \\ \\  \\::\\ \\   "
+                      "\\:\\____/\\\\:.\\ \\  \\ \\\\ \\ `\\ \\ \\\\:\\_\\ \\ "
+                      "\\\\:.\\ \\  \\ \\\n    \\__\\/\\__\\/ \\_____\\/   \\_"
+                      "_\\/    \\_____\\/ \\__\\/\\__\\/ \\_\\/ \\_\\/ \\_____"
+                      "\\/ \\__\\/\\__\\/\n")
 
     def print(self):
         """prints the menu with an outline around the currently selected option
