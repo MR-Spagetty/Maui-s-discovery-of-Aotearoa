@@ -72,6 +72,7 @@ class map:
         self.random.seed(seed)
         self.difficulty = difficulty
         self.tiles = {}
+        self.generate_north_island()
 
     def generate_tile(self, turn_num, coordinates={'x': 0, 'y': 0}):
         """logic for generating a new tile
@@ -237,10 +238,10 @@ class map:
                 '≈≈≈≈≈≈/≈≈'
             ],
             'north island': [
-                '≈≈≈%≈≈≈≈≈',
-                '≈≈≈≈%≈%≈≈',
-                '≈≈≈%%%≈≈≈',
-                '≈≈%%%≈≈≈≈',
+                '≈≈≈█≈≈≈≈≈',
+                '≈≈≈≈█≈█≈≈',
+                '≈≈≈███≈≈≈',
+                '≈≈███≈≈≈≈',
                 '≈≈≈≈≈≈≈≈≈'
             ]
             }
@@ -320,6 +321,7 @@ class map:
         def check_win(self, player):
             if self.type == "north island":
                 player.won = True
+                player.playing = False
 
         # things that can happen in a whirl pool
 
@@ -817,6 +819,8 @@ class menu:
                       "\n     \\__\\/   \\_____\\/ \\_____\\/     \\____/_/\\"
                       "________\\/ \\_____\\/ \\____/_/")
             elif self.game_player.won:
+                os.system('cls' if os.name == 'nt' else 'clear')
+                self.game_player.update_map_and_chart()
                 # belive it or not this says "YOU FOUND AOTEAROA"
                 print(" __  __   ______   __  __       ______   ______   __ "
                       " __   ___   __    ______\n/_/\\/_/\\ /_____/\\ /_/\\/_/"
