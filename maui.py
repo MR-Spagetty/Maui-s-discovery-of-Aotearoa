@@ -459,6 +459,9 @@ class player:
                 self.map.tiles[
                     self.coordinates['y']][
                         self.coordinates['x']].whirlpool_execute(self)
+                self.map.tiles[
+                    self.coordinates['y']][
+                        self.coordinates['x']].check_win(self)
 
         # iterating through the currently visable x coordinates
         for x in range(self.coordinates['x'] - self.view_distance,
