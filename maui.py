@@ -88,6 +88,8 @@ class map:
                                                                    turn_num)
 
     def generate_north_island(self):
+        """Generates the north island of Aotearoa
+        """
         x = self.random.randint(2**7, 2**9)
         y = self.random.randint(2**7, 2**9)
         x *= self.random.choice([-1, 1])
@@ -319,6 +321,11 @@ class map:
                 self.remaining_delay = int(self.fish_delay)
 
         def check_win(self, player):
+            """checks wheather or not the player has won
+
+            Args:
+                player (player_type_object): the player object
+            """
             if self.type == "north island":
                 player.won = True
                 player.playing = False
