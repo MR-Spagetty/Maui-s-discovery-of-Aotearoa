@@ -32,9 +32,9 @@ or like before if python is not in your path:
 
 ## gameplay:
 
-in the game you play as Maui teh mythical character from pacific islander legends who discovered Aotearoa. the aim of this game is to find Aotearoa without dying.
+in the game you play as Maui the mythical character from pacific islander legends who discovered Aotearoa. the aim of this game is to find Aotearoa without dying.
 
-along your path you will encounter different types of tiles that can do different things, here is the key for these tiles wich can be seen at anypoint in teh game py pressing `h`
+along your path you will encounter different types of tiles that can do different things, here is the key for these tiles which can be seen at any point in the game py pressing `h`
 
 ```Tile type and function key:
 
