@@ -88,8 +88,8 @@ class map:
                                                                    turn_num)
 
     def generate_north_island(self):
-        x = self.random.randint(2**9, 2**11)
-        y = self.random.randint(2**9, 2**11)
+        x = self.random.randint(2**7, 2**9)
+        y = self.random.randint(2**7, 2**9)
         x *= self.random.choice([-1, 1])
         y *= self.random.choice([-1, 1])
 
@@ -453,17 +453,16 @@ class player:
         """
         current_seen = {}
 
-        if self.coordinates['y'] in self.map.tiles and not hit_rock:
-            if self.coordinates['x'] in self.map.tiles[self.coordinates['y']]:
-                self.map.tiles[
-                    self.coordinates['y']][
+        if not hit_rock:
+            try:
+                self.map.tiles[self.coordinates['y']][
                         self.coordinates['x']].collect_fish(self)
-                self.map.tiles[
-                    self.coordinates['y']][
+                self.map.tiles[self.coordinates['y']][
                         self.coordinates['x']].whirlpool_execute(self)
-                self.map.tiles[
-                    self.coordinates['y']][
+                self.map.tiles[self.coordinates['y']][
                         self.coordinates['x']].check_win(self)
+            except KeyError:
+                pass
 
         # iterating through the currently visable x coordinates
         for x in range(self.coordinates['x'] - self.view_distance,
@@ -506,15 +505,25 @@ class player:
         """displays help information
         """
         sea_tile = map.tile.tiles['sea']
+
         sea_tile_fish = "\n".join(sea_tile['fish'])
+
         sea_tile_no_fish = "\n".join(sea_tile['no fish'])
+
         island_tile = "\n".join(map.tile.tiles['island'])
+
         rock_tile = "\n".join(map.tile.tiles['rock'])
+
         whirlpool_tile = "\n".join(map.tile.tiles['whirlpool'])
+
         up = self.control_scheme.up_control
+
         down = self.control_scheme.down_control
+
         left = self.control_scheme.left_control
+
         right = self.control_scheme.right_control
+
         print(f"""
 Button:   | Function:
 h         | opens this dialogue
