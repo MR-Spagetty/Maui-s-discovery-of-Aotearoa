@@ -90,8 +90,8 @@ class map:
     def generate_north_island(self):
         """Generates the north island of Aotearoa
         """
-        x = self.random.randint(2**7, 2**9)
-        y = self.random.randint(2**7, 2**9)
+        x = self.random.randint(20, 30)
+        y = self.random.randint(20, 30)
         x *= self.random.choice([-1, 1])
         y *= self.random.choice([-1, 1])
 
@@ -354,7 +354,10 @@ class map:
                 player (player_type_object): the player that will be affected
                 by the whirlpool
             """
-            amount_to_lose = random.randint(2, (player.food*2)) / 2
+            if player.food >= 1:
+                amount_to_lose = random.randint(2, (player.food*2)) / 2
+            else:
+                amount_to_lose = player.food
             player.food -= amount_to_lose
             player.current_message = f'You lost {amount_to_lose} food'
 
