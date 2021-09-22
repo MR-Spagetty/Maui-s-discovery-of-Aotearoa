@@ -47,10 +47,10 @@ tile without fish:
 ≈≈≈≈≈≈≈≈≈
 
 tile with fish:
-≈≈≈≈≈≈≈α≈
-≈α≈≈≈≈≈≈≈
-≈≈≈≈α≈≈≈≈
-≈α≈≈≈≈≈α≈
+≈≈≈≈≈ α ≈
+≈ α ≈≈≈≈≈
+≈≈≈ α ≈≈≈
+≈ α ≈ α ≈
 ≈≈≈≈≈≈≈≈≈
 
     The sea tile has a 50/50 chance of generating fish and
@@ -65,7 +65,7 @@ Island:
 ≈≈`≈≈≈`≈≈
 
     The island tile is basically just a sea tile that cannot
-    gerate fish.
+    generate fish.
 
 Rock:
 ≈≈≈≈≈≈≈≈≈
@@ -84,7 +84,7 @@ Whirlpool:
 ≈≈\_/≈|≈≈
 ≈≈≈≈≈≈/≈≈
 
-    The whirlpool tile is a tile that can do mny things
+    The whirlpool tile is a tile that can do many things
     these things include:
     - Random telportation (within 255 tiles in both directions)
     - Losing a random amount of food between 1 and how much you have
