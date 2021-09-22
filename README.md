@@ -86,6 +86,6 @@ Whirlpool:
 
     The whirlpool tile is a tile that can do many things
     these things include:
-    - Random telportation (within 255 tiles in both directions)
+    - Random teleportation (within 255 tiles in both directions)
     - Losing a random amount of food between 1 and how much you have
     - Killing the player (by removing all of your fish)```
